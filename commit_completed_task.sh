@@ -1,7 +1,7 @@
 #!/bin/bash
 # commit_completed_task.sh
 
-TASK_ID="7bae865c-b602-4ab0-b479-45d794575540"
+TASK_ID="e06e733a-2e52-4e14-a7cd-ad724cfab009"
 PROJECT_ROOT=${1:-$(pwd)}
 
 # Task 정보 추출
