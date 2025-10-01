@@ -5,7 +5,7 @@ TASK_ID="7bae865c-b602-4ab0-b479-45d794575540"
 PROJECT_ROOT=${1:-$(pwd)}
 
 # Task 정보 추출
-TASK_INFO=$(cat ./tasks.json | jq -r ".tasks[] | select(.id == \"$TASK_ID\")")
+TASK_INFO=$(cat .shrimp/image-api/tasks.json | jq -r ".tasks[] | select(.id == \"$TASK_ID\")")
 
 if [ "$TASK_INFO" = "" ]; then
     echo "Task ID $TASK_ID not found"

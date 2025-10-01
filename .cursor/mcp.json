@@ -1,0 +1,14 @@
+{
+    "mcpServers": {
+      "shrimp-task-manager": {
+        "command": "npx",
+        "args": ["mcp-shrimp-task-manager"],
+        "env": {
+          "DATA_DIR": "/Users/sunungyang/Documents/image-api/.shrimp",
+          "ENABLE_GUI": "true",
+          "WEB_PORT": "56568",
+          "TEMPLATES_USE": "ko"
+        }
+      }
+    }
+  }  
