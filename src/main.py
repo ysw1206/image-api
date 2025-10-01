@@ -15,6 +15,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
 from src.config import get_settings, validate_settings
+from src.routes.image_routes import router as image_router
 
 
 # Configure structured logging
@@ -86,6 +87,9 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# Include API routes
+app.include_router(image_router)
 
 
 # Global exception handlers
