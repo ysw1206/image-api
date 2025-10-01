@@ -6,6 +6,7 @@ Handles integration with Google Gemini Imagen API for text-to-image generation.
 import asyncio
 import logging
 import time
+import base64
 from typing import Optional, List, Dict, Any
 from dataclasses import dataclass
 
@@ -138,25 +139,65 @@ class GeminiImageClient:
                 raise PromptValidationError(
                     f"Aspect ratio must be one of {self.SUPPORTED_ASPECT_RATIOS}, got {config.aspect_ratio}"
                 )
-    
+        
+
     async def generate_image(
         self,
         prompt: str,
         config: Optional[types.GenerateImagesConfig] = None
     ) -> List[ImageGenerationResult]:
+        # """
+        # Generate images from text prompt using Gemini Imagen API.
+        # """
+        # start_time = time.time()
+        
+        # try:
+        #     # Validate inputs
+        #     self._validate_prompt(prompt)
+        #     self._validate_config(config)
+            
+        #     if config is None:
+        #         config = types.GenerateImagesConfig(number_of_images=1)
+            
+        #     logger.info(f"🎨 Generating image with prompt: '{prompt[:50]}...'")
+        #     logger.info(f"📊 Config: {config}")
+            
+        #     loop = asyncio.get_event_loop()
+        #     response = await loop.run_in_executor(
+        #         None,
+        #         lambda: self.client.models.generate_images(
+        #             model=self.MODEL_NAME,
+        #             prompt=prompt,
+        #             config=config
+        #         )
+        #     )
+            
+        #     generation_time = time.time() - start_time
+            
+        #     if not response:
+        #         raise GeminiAPIError("No response received from Gemini API", error_code="NO_RESPONSE")
+
+        #     # Most recent SDK uses response.images
+        #     images = getattr(response, "images", None) or getattr(response, "candidates", None)
+        #     if not images:
+        #         raise GeminiAPIError("No images generated. Empty response.", error_code="EMPTY_RESPONSE")
+            
+        #     print(images)
+
+        #     return None
+    
+        # except (PromptValidationError, GeminiAPIError):
+        #     raise
+        # except Exception as e:
+        #     logger.error(f"❌ Unexpected error during image generation: {e}", exc_info=True)
+        #     raise GeminiAPIError(
+        #         f"Unexpected error during image generation: {str(e)}",
+        #         error_code="UNEXPECTED_ERROR",
+        #         original_error=e
+        #     )    
+    
         """
         Generate images from text prompt using Gemini Imagen API.
-        
-        Args:
-            prompt: Text description for image generation
-            config: Optional configuration for image generation
-            
-        Returns:
-            List[ImageGenerationResult]: Generated images with metadata
-            
-        Raises:
-            PromptValidationError: If prompt or config is invalid
-            GeminiAPIError: If API call fails
         """
         start_time = time.time()
         
@@ -165,14 +206,12 @@ class GeminiImageClient:
             self._validate_prompt(prompt)
             self._validate_config(config)
             
-            # Use default config if none provided
             if config is None:
                 config = types.GenerateImagesConfig(number_of_images=1)
             
-            logger.info(f"🎨 Generating image with prompt: '{prompt[:50]}...' (length: {len(prompt.split())} tokens)")
+            logger.info(f"🎨 Generating image with prompt: '{prompt[:50]}...'")
             logger.info(f"📊 Config: {config}")
             
-            # Make API call in executor to avoid blocking
             loop = asyncio.get_event_loop()
             response = await loop.run_in_executor(
                 None,
@@ -185,50 +224,37 @@ class GeminiImageClient:
             
             generation_time = time.time() - start_time
             
-            # Process response
-            if not response or not hasattr(response, 'images') or not response.images:
-                raise GeminiAPIError(
-                    "No images generated. The API returned an empty response.",
-                    error_code="EMPTY_RESPONSE"
-                )
+            if not response:
+                raise GeminiAPIError("No response received from Gemini API", error_code="NO_RESPONSE")
+
+            # Most recent SDK uses response.images
+            images = getattr(response, "images", None) or getattr(response, "candidates", None)
+            if not images:
+                raise GeminiAPIError("No images generated. Empty response.", error_code="EMPTY_RESPONSE")
             
             results = []
-            for i, image in enumerate(response.images):
+            for i, image in enumerate(images):
                 try:
-                    # Extract image data
-                    if hasattr(image, 'data'):
-                        image_data = image.data
-                    elif hasattr(image, 'bytes'):
-                        image_data = image.bytes
+                    if hasattr(image, "image_bytes") and image.image_bytes:
+                        image_data = image.image_bytes
+                        mime_type = getattr(image, "mime_type", "image/png")
                     else:
-                        # Try to get image data from different possible attributes
-                        image_data = getattr(image, '_data', None) or getattr(image, '_bytes', None)
-                        if image_data is None:
-                            raise GeminiAPIError(
-                                f"Could not extract image data from response for image {i+1}",
-                                error_code="DATA_EXTRACTION_ERROR"
-                            )
-                    
-                    if not image_data:
                         raise GeminiAPIError(
-                            f"Empty image data received for image {i+1}",
-                            error_code="EMPTY_IMAGE_DATA"
+                            f"No image_bytes found for image {i+1}",
+                            error_code="DATA_EXTRACTION_ERROR"
                         )
-                    
-                    # Create result object
+
                     result = ImageGenerationResult(
                         image_data=image_data,
-                        mime_type="image/png",  # Gemini typically returns PNG
+                        mime_type=mime_type,
                         size=len(image_data),
                         generation_time=generation_time,
                         model_used=self.MODEL_NAME
                     )
-                    
                     results.append(result)
                     logger.info(f"✅ Image {i+1} processed: {len(image_data)} bytes")
-                
+
                 except Exception as e:
-                    logger.error(f"❌ Error processing image {i+1}: {e}")
                     raise GeminiAPIError(
                         f"Failed to process generated image {i+1}: {str(e)}",
                         error_code="IMAGE_PROCESSING_ERROR",
@@ -237,15 +263,9 @@ class GeminiImageClient:
             
             logger.info(f"✅ Successfully generated {len(results)} image(s) in {generation_time:.2f}s")
             return results
-            
-        except PromptValidationError:
-            # Re-raise validation errors as-is
+        
+        except (PromptValidationError, GeminiAPIError):
             raise
-            
-        except GeminiAPIError:
-            # Re-raise our custom API errors as-is
-            raise
-            
         except Exception as e:
             logger.error(f"❌ Unexpected error during image generation: {e}", exc_info=True)
             raise GeminiAPIError(

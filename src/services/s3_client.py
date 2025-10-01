@@ -316,7 +316,6 @@ class S3UploadClient:
                 'Key': s3_key,
                 'Body': image_data,
                 'ContentType': mime_type,
-                'ACL': 'public-read',  # Make publicly accessible
                 'Metadata': {
                     'original-filename': filename,
                     'upload-timestamp': datetime.now(timezone.utc).isoformat(),
