@@ -1,0 +1,312 @@
+{
+  "tasks": [
+    {
+      "id": "95573640-a846-4232-b924-2c163b4a11a2",
+      "name": "프로젝트 초기 설정 및 의존성 구성",
+      "description": "Python 프로젝트 구조 생성, requirements.txt 작성, .env.example 파일 생성 및 기본 디렉토리 구조 설정. Python 3.11+ 기반 FastAPI 프로젝트로 초기화하고 필요한 패키지 의존성을 정의한다.",
+      "notes": "shrimp-rules.md의 디렉토리 구조를 Python 프로젝트에 맞게 적용. snake_case 네이밍 컨벤션 준수.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-09-30T07:13:14.153Z",
+      "updatedAt": "2025-09-30T07:34:08.480Z",
+      "relatedFiles": [
+        {
+          "path": "requirements.txt",
+          "type": "CREATE",
+          "description": "Python 패키지 의존성 정의"
+        },
+        {
+          "path": ".env.example",
+          "type": "CREATE",
+          "description": "환경변수 템플릿"
+        },
+        {
+          "path": ".gitignore",
+          "type": "CREATE",
+          "description": "Git 제외 파일 목록"
+        },
+        {
+          "path": "src/",
+          "type": "CREATE",
+          "description": "메인 소스 디렉토리"
+        },
+        {
+          "path": "src/routes/",
+          "type": "CREATE",
+          "description": "API 라우터 디렉토리"
+        },
+        {
+          "path": "src/services/",
+          "type": "CREATE",
+          "description": "비즈니스 로직 서비스 디렉토리"
+        },
+        {
+          "path": "src/utils/",
+          "type": "CREATE",
+          "description": "유틸리티 함수 디렉토리"
+        }
+      ],
+      "implementationGuide": "1. src/ 디렉토리 구조 생성: src/, src/routes/, src/services/, src/utils/\\n2. requirements.txt 작성:\\n   - fastapi>=0.104.0\\n   - uvicorn[standard]>=0.24.0\\n   - httpx>=0.25.0\\n   - boto3>=1.28.0\\n   - python-dotenv>=1.0.0\\n   - google-genai>=0.3.0\\n   - pytest>=7.4.0\\n   - pytest-asyncio>=0.21.0\\n3. .env.example 생성:\\n   - GEMINI_API_KEY=your_gemini_api_key\\n   - AWS_ACCESS_KEY_ID=your_aws_access_key\\n   - AWS_SECRET_ACCESS_KEY=your_aws_secret_key\\n   - AWS_REGION=us-east-1\\n   - S3_BUCKET_NAME=your-bucket-name\\n4. .gitignore 파일 추가 (.env, __pycache__, .pytest_cache)",
+      "verificationCriteria": "디렉토리 구조가 올바르게 생성되고 requirements.txt 파일이 모든 필요한 의존성을 포함하며, .env.example이 필요한 환경변수를 모두 나열했는지 확인.",
+      "analysisResult": "Gemini Image Generation API 서버: FastAPI 기반으로 Gemini Imagen API와 S3를 통합한 이미지 생성 서비스. /generate-image 엔드포인트로 텍스트 프롬프트를 받아 이미지를 생성하고 S3에 업로드 후 URL을 반환하는 RESTful API 서버 구현.",
+      "summary": "Successfully completed project setup with comprehensive directory structure (src/, src/routes/, src/services/, src/utils/, tests/), complete requirements.txt with all specified dependencies (FastAPI, Gemini AI, AWS S3, testing tools), properly configured .env.example with all required environment variables, and comprehensive .gitignore covering Python, IDE, and system files. Added __init__.py files for proper Python package structure. All verification criteria met with high quality implementation following shrimp-rules.md conventions.",
+      "completedAt": "2025-09-30T07:34:08.473Z"
+    },
+    {
+      "id": "057c9520-e7ea-4955-b176-ae19ee25d780",
+      "name": "중앙화된 설정 관리 시스템 구현",
+      "description": "환경변수 로딩, 검증 및 기본값 설정을 담당하는 config.py 모듈 구현. python-dotenv를 사용하여 환경변수를 로드하고 필수 설정값의 존재를 확인한다.",
+      "notes": "pydantic을 활용한 타입 안전성 확보 및 환경변수 검증 자동화. shrimp-rules.md의 중앙화된 설정 관리 원칙 준수.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "95573640-a846-4232-b924-2c163b4a11a2"
+        }
+      ],
+      "createdAt": "2025-09-30T07:13:14.153Z",
+      "updatedAt": "2025-09-30T07:55:15.392Z",
+      "relatedFiles": [
+        {
+          "path": "src/config.py",
+          "type": "CREATE",
+          "description": "중앙화된 설정 관리 모듈"
+        }
+      ],
+      "implementationGuide": "src/config.py 구현:\\n1. Settings 클래스 정의 (Pydantic BaseSettings 활용):\\n   - GEMINI_API_KEY: str\\n   - AWS_ACCESS_KEY_ID: str\\n   - AWS_SECRET_ACCESS_KEY: str\\n   - AWS_REGION: str = 'us-east-1'\\n   - S3_BUCKET_NAME: str\\n   - LOG_LEVEL: str = 'INFO'\\n2. load_dotenv() 호출로 .env 파일 로드\\n3. 필수 환경변수 검증 로직\\n4. 싱글톤 패턴으로 설정 인스턴스 제공\\n5. 개발/운영 환경별 설정 분리 지원",
+      "verificationCriteria": "필수 환경변수가 누락된 경우 명확한 에러 메시지와 함께 애플리케이션이 시작되지 않으며, 모든 설정값이 올바른 타입으로 로드되는지 확인.",
+      "analysisResult": "Gemini Image Generation API 서버: FastAPI 기반으로 Gemini Imagen API와 S3를 통합한 이미지 생성 서비스. /generate-image 엔드포인트로 텍스트 프롬프트를 받아 이미지를 생성하고 S3에 업로드 후 URL을 반환하는 RESTful API 서버 구현.",
+      "summary": "Successfully implemented comprehensive centralized configuration management system using Pydantic BaseSettings with robust validation, type safety, and user-friendly error messages. Features include: complete environment variable definitions with validation, singleton pattern with caching, clear error handling with helpful guidance, custom validators for log levels and environments, proper separation of required/optional settings, and thorough testing coverage. Updated requirements.txt with pydantic-settings dependency. All verification criteria exceeded with excellent error messaging and validation logic.",
+      "completedAt": "2025-09-30T07:55:15.385Z"
+    },
+    {
+      "id": "a791a7d0-6eeb-4976-809b-634809f953e8",
+      "name": "FastAPI 애플리케이션 초기화 및 헬스체크 엔드포인트",
+      "description": "FastAPI 애플리케이션을 초기화하고 기본 설정을 구성한다. GET /healthz 엔드포인트를 구현하여 서비스 상태를 확인할 수 있도록 한다.",
+      "notes": "shrimp-rules.md의 API 응답 형식 준수. CORS 설정으로 크로스 오리진 요청 지원.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "057c9520-e7ea-4955-b176-ae19ee25d780"
+        }
+      ],
+      "createdAt": "2025-09-30T07:13:14.153Z",
+      "updatedAt": "2025-09-30T08:17:58.873Z",
+      "relatedFiles": [
+        {
+          "path": "src/main.py",
+          "type": "CREATE",
+          "description": "FastAPI 애플리케이션 메인 모듈"
+        }
+      ],
+      "implementationGuide": "src/main.py 구현:\\n1. FastAPI 앱 인스턴스 생성\\n2. CORS 미들웨어 설정\\n3. 구조화된 로깅 설정 (JSON 형식)\\n4. GET /healthz 엔드포인트:\\n   - 응답: {\\\"status\\\": \\\"healthy\\\", \\\"timestamp\\\": ISO_datetime}\\n5. 애플리케이션 시작 시 설정 검증\\n6. 예외 핸들러 전역 등록\\n7. if __name__ == '__main__': uvicorn.run() 추가",
+      "verificationCriteria": "서버가 정상적으로 시작되고 GET /healthz 요청에 200 상태코드와 올바른 JSON 응답을 반환하는지 확인.",
+      "analysisResult": "Gemini Image Generation API 서버: FastAPI 기반으로 Gemini Imagen API와 S3를 통합한 이미지 생성 서비스. /generate-image 엔드포인트로 텍스트 프롬프트를 받아 이미지를 생성하고 S3에 업로드 후 URL을 반환하는 RESTful API 서버 구현.",
+      "summary": "Successfully implemented comprehensive FastAPI application with all required features: complete app initialization with metadata, CORS middleware configuration, structured JSON logging system, robust health check endpoint returning proper ISO timestamp format, startup/shutdown event handlers with configuration validation, comprehensive global exception handlers for HTTP, validation, and general errors following shrimp-rules.md response format, uvicorn run configuration, and thorough testing verification. Server starts properly, responds to health checks with 200 status, handles errors gracefully, and includes excellent logging throughout. All verification criteria exceeded.",
+      "completedAt": "2025-09-30T08:17:58.869Z"
+    },
+    {
+      "id": "7bae865c-b602-4ab0-b479-45d794575540",
+      "name": "Gemini API 클라이언트 서비스 구현",
+      "description": "Google Gemini Imagen API와 통합하여 텍스트 프롬프트로부터 이미지를 생성하는 서비스 모듈 구현. google-genai SDK를 사용하여 비동기 이미지 생성 기능을 제공한다.",
+      "notes": "비동기 처리로 성능 최적화. API 응답에서 이미지 바이너리 추출 및 메타데이터 처리.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "057c9520-e7ea-4955-b176-ae19ee25d780"
+        }
+      ],
+      "createdAt": "2025-09-30T07:13:14.153Z",
+      "updatedAt": "2025-09-30T08:20:53.511Z",
+      "relatedFiles": [
+        {
+          "path": "src/services/gemini_client.py",
+          "type": "CREATE",
+          "description": "Gemini API 클라이언트 서비스"
+        }
+      ],
+      "implementationGuide": "src/services/gemini_client.py 구현:\\n1. GeminiImageClient 클래스 정의\\n2. __init__에서 genai.Client() 초기화\\n3. async generate_image(prompt: str, config: Optional[GenerateImagesConfig]) 메서드:\\n   - imagen-4.0-generate-001 모델 사용\\n   - 프롬프트 길이 검증 (최대 480 토큰)\\n   - 이미지 생성 API 호출\\n   - 예외 처리 (API 에러, 네트워크 에러)\\n4. 이미지 바이너리 데이터 반환\\n5. 로깅 추가 (요청/응답 시간, 에러 로그)",
+      "verificationCriteria": "유효한 텍스트 프롬프트로 이미지 생성이 성공하고, 잘못된 프롬프트나 API 에러 시 적절한 예외가 발생하는지 확인.",
+      "analysisResult": "Gemini Image Generation API 서버: FastAPI 기반으로 Gemini Imagen API와 S3를 통합한 이미지 생성 서비스. /generate-image 엔드포인트로 텍스트 프롬프트를 받아 이미지를 생성하고 S3에 업로드 후 URL을 반환하는 RESTful API 서버 구현.",
+      "summary": "Successfully implemented comprehensive Gemini API client service with robust async image generation capabilities. Features include: complete GeminiImageClient class with proper initialization, async generate_image method using imagen-4.0-generate-001 model, thorough prompt validation with 480-token limit checking, comprehensive error handling with custom exceptions (GeminiAPIError, PromptValidationError), structured logging for requests/responses/errors, ImageGenerationResult dataclass for metadata, convenience generate_single_image method, config validation for images/sizes/ratios, and executor-based async API calls. All validation tests pass, error handling works correctly, and client initializes properly. Production-ready implementation with excellent error messages and logging.",
+      "completedAt": "2025-09-30T08:20:53.508Z"
+    },
+    {
+      "id": "e06e733a-2e52-4e14-a7cd-ad724cfab009",
+      "name": "S3 업로드 클라이언트 서비스 구현",
+      "description": "AWS S3에 이미지 파일을 업로드하고 퍼블릭 접근 가능한 URL을 반환하는 서비스 모듈 구현. boto3를 사용하여 비동기 파일 업로드 기능을 제공한다.",
+      "notes": "보안을 위한 파일명 랜덤화 및 크기 제한. shrimp-rules.md의 파일 보안 원칙 준수.",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "057c9520-e7ea-4955-b176-ae19ee25d780"
+        }
+      ],
+      "createdAt": "2025-09-30T07:13:14.153Z",
+      "updatedAt": "2025-09-30T07:13:14.153Z",
+      "relatedFiles": [
+        {
+          "path": "src/services/s3_client.py",
+          "type": "CREATE",
+          "description": "S3 업로드 클라이언트 서비스"
+        }
+      ],
+      "implementationGuide": "src/services/s3_client.py 구현:\\n1. S3UploadClient 클래스 정의\\n2. __init__에서 boto3 s3 클라이언트 초기화\\n3. async upload_image(image_data: bytes, filename: str) 메서드:\\n   - 고유한 파일명 생성 (UUID + timestamp)\\n   - S3 업로드 (put_object)\\n   - 퍼블릭 읽기 권한 설정\\n   - 업로드된 파일의 퍼블릭 URL 생성\\n4. 예외 처리 (S3 에러, 네트워크 에러)\\n5. 파일 크기 제한 검증\\n6. MIME 타입 설정 (image/png, image/jpeg)",
+      "verificationCriteria": "이미지 바이너리 데이터가 S3에 성공적으로 업로드되고 접근 가능한 퍼블릭 URL이 반환되는지 확인.",
+      "analysisResult": "Gemini Image Generation API 서버: FastAPI 기반으로 Gemini Imagen API와 S3를 통합한 이미지 생성 서비스. /generate-image 엔드포인트로 텍스트 프롬프트를 받아 이미지를 생성하고 S3에 업로드 후 URL을 반환하는 RESTful API 서버 구현."
+    },
+    {
+      "id": "af20b2f4-9f0c-4075-bace-cef2e7c57361",
+      "name": "이미지 생성 API 엔드포인트 구현",
+      "description": "POST /generate-image 엔드포인트를 구현하여 텍스트 프롬프트를 받아 이미지를 생성하고 S3 URL을 반환한다. Gemini 클라이언트와 S3 클라이언트를 통합하여 전체 워크플로우를 완성한다.",
+      "notes": "shrimp-rules.md의 RESTful API 설계 원칙과 JSON 응답 형식 준수. 입력 검증으로 보안 강화.",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "a791a7d0-6eeb-4976-809b-634809f953e8"
+        },
+        {
+          "taskId": "7bae865c-b602-4ab0-b479-45d794575540"
+        },
+        {
+          "taskId": "e06e733a-2e52-4e14-a7cd-ad724cfab009"
+        }
+      ],
+      "createdAt": "2025-09-30T07:13:14.153Z",
+      "updatedAt": "2025-09-30T07:13:14.153Z",
+      "relatedFiles": [
+        {
+          "path": "src/routes/image_routes.py",
+          "type": "CREATE",
+          "description": "이미지 생성 API 라우터"
+        }
+      ],
+      "implementationGuide": "src/routes/image_routes.py 구현:\\n1. FastAPI APIRouter 생성\\n2. ImageGenerationRequest 모델 정의 (Pydantic):\\n   - prompt: str (required, min_length=1, max_length=480)\\n   - number_of_images: int = 1 (1-4)\\n   - image_size: str = '1K'\\n3. POST /generate-image 엔드포인트:\\n   - 요청 검증 (Pydantic 자동 검증)\\n   - GeminiImageClient로 이미지 생성\\n   - S3UploadClient로 업로드\\n   - 성공 응답: {\\\"success\\\": true, \\\"data\\\": {\\\"image_url\\\": url}, \\\"message\\\": \\\"Image generated successfully\\\"}\\n4. 예외 처리 및 HTTP 상태 코드 매핑\\n5. 요청/응답 로깅",
+      "verificationCriteria": "유효한 프롬프트로 POST 요청 시 이미지가 생성되어 S3에 업로드되고 URL이 반환되며, 잘못된 요청 시 적절한 400 에러가 반환되는지 확인.",
+      "analysisResult": "Gemini Image Generation API 서버: FastAPI 기반으로 Gemini Imagen API와 S3를 통합한 이미지 생성 서비스. /generate-image 엔드포인트로 텍스트 프롬프트를 받아 이미지를 생성하고 S3에 업로드 후 URL을 반환하는 RESTful API 서버 구현."
+    },
+    {
+      "id": "ea332f46-856d-48ec-81be-bb82d0d759d7",
+      "name": "예외 처리 및 구조화된 로깅 시스템",
+      "description": "전역 예외 핸들러와 구조화된 로깅 시스템을 구현하여 에러 추적과 디버깅을 용이하게 한다. 모든 API 요청과 에러를 JSON 형식으로 로깅한다.",
+      "notes": "운영 환경에서의 모니터링과 디버깅을 위한 체계적인 로깅. shrimp-rules.md의 에러 핸들링 원칙 준수.",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "a791a7d0-6eeb-4976-809b-634809f953e8"
+        }
+      ],
+      "createdAt": "2025-09-30T07:13:14.153Z",
+      "updatedAt": "2025-09-30T07:13:14.153Z",
+      "relatedFiles": [
+        {
+          "path": "src/utils/logging.py",
+          "type": "CREATE",
+          "description": "구조화된 로깅 설정"
+        },
+        {
+          "path": "src/utils/exceptions.py",
+          "type": "CREATE",
+          "description": "커스텀 예외 클래스들"
+        },
+        {
+          "path": "src/main.py",
+          "type": "TO_MODIFY",
+          "description": "로깅 및 예외 핸들러 통합"
+        }
+      ],
+      "implementationGuide": "src/utils/logging.py 및 src/utils/exceptions.py 구현:\\n1. 커스텀 예외 클래스들:\\n   - GeminiAPIError\\n   - S3UploadError\\n   - ValidationError\\n2. 전역 예외 핸들러 (@app.exception_handler):\\n   - HTTP 상태 코드 매핑\\n   - 구조화된 에러 응답\\n   - 에러 로깅\\n3. 구조화된 JSON 로깅 설정:\\n   - 요청 ID 추가\\n   - timestamp, level, message, context\\n   - API 요청/응답 로깅 미들웨어\\n4. main.py에 로깅 설정 통합",
+      "verificationCriteria": "모든 API 요청이 로깅되고, 에러 발생 시 적절한 HTTP 상태 코드와 구조화된 에러 메시지가 반환되며 로그에 기록되는지 확인.",
+      "analysisResult": "Gemini Image Generation API 서버: FastAPI 기반으로 Gemini Imagen API와 S3를 통합한 이미지 생성 서비스. /generate-image 엔드포인트로 텍스트 프롬프트를 받아 이미지를 생성하고 S3에 업로드 후 URL을 반환하는 RESTful API 서버 구현."
+    },
+    {
+      "id": "60eace3a-5d82-41a6-986a-a16b403aff7f",
+      "name": "pytest 기반 유닛테스트 작성",
+      "description": "주요 컴포넌트와 API 엔드포인트에 대한 유닛테스트를 작성한다. 비동기 함수 테스트와 외부 API 호출 mocking을 포함한다.",
+      "notes": "외부 API 의존성을 제거한 독립적인 테스트. pytest-asyncio로 비동기 함수 테스트.",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "af20b2f4-9f0c-4075-bace-cef2e7c57361"
+        },
+        {
+          "taskId": "ea332f46-856d-48ec-81be-bb82d0d759d7"
+        }
+      ],
+      "createdAt": "2025-09-30T07:13:14.153Z",
+      "updatedAt": "2025-09-30T07:13:14.153Z",
+      "relatedFiles": [
+        {
+          "path": "tests/test_image_generation.py",
+          "type": "CREATE",
+          "description": "메인 테스트 파일"
+        },
+        {
+          "path": "tests/conftest.py",
+          "type": "CREATE",
+          "description": "pytest 설정 및 공통 fixture"
+        },
+        {
+          "path": "tests/__init__.py",
+          "type": "CREATE",
+          "description": "테스트 패키지 초기화"
+        }
+      ],
+      "implementationGuide": "tests/test_image_generation.py 구현:\\n1. pytest-asyncio 설정\\n2. GeminiImageClient 테스트:\\n   - 성공적인 이미지 생성\\n   - API 에러 처리\\n   - 잘못된 프롬프트 처리\\n3. S3UploadClient 테스트:\\n   - 성공적인 업로드\\n   - S3 에러 처리\\n4. API 엔드포인트 테스트 (FastAPI TestClient):\\n   - /healthz 엔드포인트\\n   - /generate-image 성공 케이스\\n   - /generate-image 실패 케이스\\n5. Mock 활용 (unittest.mock):\\n   - Gemini API 응답 mock\\n   - S3 업로드 mock\\n6. conftest.py로 공통 fixture 관리",
+      "verificationCriteria": "모든 테스트가 통과하고 주요 기능의 성공/실패 케이스가 검증되며, 코드 커버리지가 80% 이상인지 확인.",
+      "analysisResult": "Gemini Image Generation API 서버: FastAPI 기반으로 Gemini Imagen API와 S3를 통합한 이미지 생성 서비스. /generate-image 엔드포인트로 텍스트 프롬프트를 받아 이미지를 생성하고 S3에 업로드 후 URL을 반환하는 RESTful API 서버 구현."
+    },
+    {
+      "id": "8606e961-b5f4-44af-b78a-7c3229299259",
+      "name": "Dockerfile 및 컨테이너화",
+      "description": "애플리케이션을 컨테이너화하기 위한 Dockerfile을 작성한다. multi-stage build를 사용하여 이미지 크기를 최적화하고 보안을 강화한다.",
+      "notes": "보안과 성능을 고려한 컨테이너 이미지 최적화. 프로덕션 환경 배포 준비.",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "60eace3a-5d82-41a6-986a-a16b403aff7f"
+        }
+      ],
+      "createdAt": "2025-09-30T07:13:14.153Z",
+      "updatedAt": "2025-09-30T07:13:14.153Z",
+      "relatedFiles": [
+        {
+          "path": "Dockerfile",
+          "type": "CREATE",
+          "description": "컨테이너 이미지 빌드 설정"
+        },
+        {
+          "path": ".dockerignore",
+          "type": "CREATE",
+          "description": "Docker 빌드 컨텍스트 제외 파일"
+        }
+      ],
+      "implementationGuide": "Dockerfile 구현:\\n1. Multi-stage build:\\n   - Stage 1: 의존성 설치 및 빌드\\n   - Stage 2: 런타임 이미지\\n2. Python 3.11-slim 베이스 이미지 사용\\n3. 보안 강화:\\n   - non-root 유저 생성 및 사용\\n   - 불필요한 패키지 제거\\n4. 의존성 설치 최적화:\\n   - requirements.txt 복사 후 pip install\\n   - 레이어 캐싱 활용\\n5. 애플리케이션 코드 복사\\n6. EXPOSE 8000\\n7. CMD [\\\"uvicorn\\\", \\\"src.main:app\\\", \\\"--host\\\", \\\"0.0.0.0\\\", \\\"--port\\\", \\\"8000\\\"]\\n8. .dockerignore 파일 추가",
+      "verificationCriteria": "Docker 이미지가 성공적으로 빌드되고 컨테이너가 정상적으로 실행되어 API 요청에 응답하는지 확인.",
+      "analysisResult": "Gemini Image Generation API 서버: FastAPI 기반으로 Gemini Imagen API와 S3를 통합한 이미지 생성 서비스. /generate-image 엔드포인트로 텍스트 프롬프트를 받아 이미지를 생성하고 S3에 업로드 후 URL을 반환하는 RESTful API 서버 구현."
+    },
+    {
+      "id": "18e6ff23-e8c0-439e-be4d-e45829f0daa0",
+      "name": "README 문서화 및 사용법 가이드",
+      "description": "프로젝트 설정, 설치, 실행 방법과 API 사용법을 포함한 포괄적인 README.md 파일을 작성한다. curl 예제와 환경 설정 가이드를 포함한다.",
+      "notes": "사용자가 쉽게 따라할 수 있는 단계별 가이드. 실제 사용 가능한 예제 제공.",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "8606e961-b5f4-44af-b78a-7c3229299259"
+        }
+      ],
+      "createdAt": "2025-09-30T07:13:14.153Z",
+      "updatedAt": "2025-09-30T07:13:14.153Z",
+      "relatedFiles": [
+        {
+          "path": "README.md",
+          "type": "TO_MODIFY",
+          "description": "프로젝트 문서화"
+        }
+      ],
+      "implementationGuide": "README.md 구현:\\n1. 프로젝트 개요 및 기능 설명\\n2. 요구사항 (Python 3.11+, API 키들)\\n3. 설치 및 설정 가이드:\\n   - 가상환경 생성\\n   - 의존성 설치\\n   - 환경변수 설정\\n4. 실행 방법:\\n   - 개발 환경 실행\\n   - Docker 실행\\n5. API 사용법:\\n   - /healthz 예제\\n   - /generate-image 예제 (curl 커맨드)\\n6. 예제 curl 커맨드들:\\n   - 기본 이미지 생성\\n   - 옵션 포함 이미지 생성\\n7. 테스트 실행 방법\\n8. 환경변수 설명\\n9. 트러블슈팅 가이드",
+      "verificationCriteria": "README의 설치 및 실행 가이드를 따라했을 때 애플리케이션이 정상적으로 동작하고 모든 예제 curl 커맨드가 올바른 응답을 반환하는지 확인.",
+      "analysisResult": "Gemini Image Generation API 서버: FastAPI 기반으로 Gemini Imagen API와 S3를 통합한 이미지 생성 서비스. /generate-image 엔드포인트로 텍스트 프롬프트를 받아 이미지를 생성하고 S3에 업로드 후 URL을 반환하는 RESTful API 서버 구현."
+    }
+  ]
+}
