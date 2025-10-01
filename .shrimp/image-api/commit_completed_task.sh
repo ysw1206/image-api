@@ -32,6 +32,8 @@ git commit -m "$COMMIT_MSG"
 
 # 프로젝트 루트에도 커밋 (선택사항)
 cd "$PROJECT_ROOT"
+echo "$PROJECT_ROOT"
+
 git add .
 git commit -m "$COMMIT_MSG"
 
