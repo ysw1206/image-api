@@ -4,6 +4,7 @@ Handles secure upload of images to AWS S3 with public URL generation.
 """
 
 import asyncio
+import base64
 import logging
 import time
 import uuid
@@ -317,14 +318,16 @@ class S3UploadClient:
                 'Body': image_data,
                 'ContentType': mime_type,
                 'Metadata': {
-                    'original-filename': filename,
+                    'original-filename-b64': base64.b64encode(filename.encode('utf-8')).decode('ascii'),
                     'upload-timestamp': datetime.now(timezone.utc).isoformat(),
-                    'file-hash': file_hash
-                },
+                    'file-hash': file_hash,
+                },                
                 'CacheControl': 'max-age=31536000',  # 1 year cache
                 'ContentDisposition': 'inline'
             }
             
+
+
             # Upload to S3 in executor to avoid blocking
             loop = asyncio.get_event_loop()
             response = await loop.run_in_executor(
