@@ -16,6 +16,17 @@ from fastapi.exceptions import RequestValidationError
 
 from src.config import get_settings, validate_settings
 from src.routes.image_routes import router as image_router
+from src.utils.logging import setup_structured_logging, RequestLoggingMiddleware, get_structured_logger
+from src.utils.exceptions import (
+    APIBaseError,
+    ValidationError,
+    GeminiAPIError,
+    S3UploadError,
+    ConfigurationError,
+    AuthenticationError,
+    RateLimitError,
+    ServiceUnavailableError
+)
 
 
 # Configure structured logging
@@ -23,18 +34,13 @@ def setup_logging():
     """Configure structured JSON logging for the application."""
     settings = get_settings()
     
-    # Create formatter for structured logging
-    logging.basicConfig(
-        level=getattr(logging, settings.log_level),
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
+    # Setup structured logging
+    logger = setup_structured_logging(
+        service_name="image-api",
+        log_level=settings.log_level,
+        log_file=None  # Can be configured to write to file if needed
     )
     
-    # Get logger
-    logger = logging.getLogger("image-api")
-    logger.info(f"Logging configured with level: {settings.log_level}")
     return logger
 
 
@@ -88,15 +94,70 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Add request logging middleware
+app.add_middleware(RequestLoggingMiddleware)
+
 # Include API routes
 app.include_router(image_router)
 
 
 # Global exception handlers
+@app.exception_handler(APIBaseError)
+async def api_base_exception_handler(request: Request, exc: APIBaseError):
+    """Handle custom API exceptions with structured logging."""
+    structured_logger = get_structured_logger("image-api.exceptions")
+    
+    # Log the exception with context
+    structured_logger.logger.error(
+        f"API Error: {exc.error_code} - {exc.message}",
+        extra={
+            "error": exc.to_dict(),
+            "request": {
+                "method": request.method,
+                "url": str(request.url),
+                "path": request.url.path
+            },
+            "event_type": "api_error"
+        },
+        exc_info=exc.original_error if exc.original_error else None
+    )
+    
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "success": False,
+            "data": None,
+            "message": exc.message,
+            "error": {
+                "code": exc.error_code,
+                "details": exc.message,
+                "context": exc.context
+            }
+        }
+    )
+
+
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
     """Handle HTTP exceptions with consistent response format."""
-    logger.warning(f"HTTP {exc.status_code}: {exc.detail} - {request.url}")
+    structured_logger = get_structured_logger("image-api.exceptions")
+    
+    structured_logger.logger.warning(
+        f"HTTP {exc.status_code}: {exc.detail}",
+        extra={
+            "error": {
+                "code": f"HTTP_{exc.status_code}",
+                "message": exc.detail,
+                "status_code": exc.status_code
+            },
+            "request": {
+                "method": request.method,
+                "url": str(request.url),
+                "path": request.url.path
+            },
+            "event_type": "http_error"
+        }
+    )
     
     return JSONResponse(
         status_code=exc.status_code,
@@ -115,7 +176,24 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """Handle request validation errors with detailed information."""
-    logger.warning(f"Validation error: {exc.errors()} - {request.url}")
+    structured_logger = get_structured_logger("image-api.exceptions")
+    
+    structured_logger.logger.warning(
+        "Request validation failed",
+        extra={
+            "error": {
+                "code": "VALIDATION_ERROR",
+                "message": "Request validation failed",
+                "details": exc.errors()
+            },
+            "request": {
+                "method": request.method,
+                "url": str(request.url),
+                "path": request.url.path
+            },
+            "event_type": "validation_error"
+        }
+    )
     
     return JSONResponse(
         status_code=422,
@@ -134,7 +212,26 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
     """Handle unexpected exceptions with proper logging."""
-    logger.error(f"Unexpected error: {str(exc)} - {request.url}", exc_info=True)
+    structured_logger = get_structured_logger("image-api.exceptions")
+    
+    structured_logger.logger.error(
+        f"Unexpected error: {str(exc)}",
+        extra={
+            "error": {
+                "code": "INTERNAL_ERROR",
+                "message": "An unexpected error occurred",
+                "type": type(exc).__name__,
+                "details": str(exc)
+            },
+            "request": {
+                "method": request.method,
+                "url": str(request.url),
+                "path": request.url.path
+            },
+            "event_type": "unexpected_error"
+        },
+        exc_info=True
+    )
     
     return JSONResponse(
         status_code=500,
